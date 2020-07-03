@@ -8,8 +8,9 @@ class App extends React.Component {
 
     submit = () => {
         let element = document.createElement('a');
-        element.setAttribute('href', 'data:text/calendar;charset=utf-8, '
-            +'BEGIN:VEVENT\n' +
+        element.setAttribute('href', 'data:text/calendar;charset=utf-8,'
+            + 'BEGIN:VCALENDAR\n' +
+            'BEGIN:VEVENT\n' +
             'DTSTAMP:20200627T123349Z\n' +
             'UID:20200627T123349Z-1508030932@marudot.com\n' +
             'DTSTART;VALUE=DATE:20200627\n' +
@@ -17,8 +18,9 @@ class App extends React.Component {
             'SUMMARY:Test123\n' +
             'DESCRIPTION:foo\n' +
             'LOCATION:hawaii\n' +
-            'END:VEVENT');
-        element.setAttribute('download', "fake.ics");
+            'END:VEVENT' +
+            'END: VCALENDAR');
+        element.setAttribute('download', "test.ics");
 
 
 
@@ -50,7 +52,6 @@ class App extends React.Component {
             </Form.Group>
             <Form.Input control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' />
             <Form.Button>Submit</Form.Button>
-            <a href="https://srv-file22.gofile.io/download/WAJgbF/fake.ics" download>test</a>
         </Form>
         <br/>
         <br/>

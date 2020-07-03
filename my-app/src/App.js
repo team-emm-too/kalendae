@@ -9,21 +9,33 @@ class App extends React.Component {
     submit = (e) => {
         let element = document.createElement('a');
 
-        element.setAttribute('href', 'data:text/calendar;charset=utf-8,'
-            + 'BEGIN:VCALENDAR\n' +
+        element.setAttribute('href', 'data:text/calendar;charset=utf-8,' +
+            //Starting Calendar
+            'BEGIN:VCALENDAR\n' +
+            //Calendar Version
             'VERSION:2.0\n' +
             'PRODID:-//ZContent.net//Zap Calendar 1.0//EN\n' +
+            //Calendar Type
             'CALSCALE:GREGORIAN\n' +
             'METHOD:PUBLISH\n' +
+            //Starting Event
             'BEGIN:VEVENT\n' +
             'SEQUENCE:0\n' +
+            // Time event was created
             'DTSTAMP:20200627T123349Z\n' +
+            //Start time of event
             'DTSTART:20200704\n' +
+            //End time of event
             'DTEND:202000704\n' +
+            //Event Name
             'SUMMARY:Test123\n' +
+            //Event Description
             'DESCRIPTION:foo\n' +
+            //Event Location
             'LOCATION:hawaii\n' +
+            //Ending Event
             'END:VEVENT\n' +
+            //Ending Calendar
             'END:VCALENDAR');
 
         element.setAttribute('download', "test.ics");

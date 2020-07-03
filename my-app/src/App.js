@@ -4,22 +4,28 @@ import 'semantic-ui-css/semantic.min.css'
 import { Grid, Header, Form, TextArea, Menu } from 'semantic-ui-react';
 
 class App extends React.Component {
-    state = {}
+    state = {eventName: "", eventLocation: "", start: "", end: "", }
 
-    submit = () => {
+    submit = (e) => {
         let element = document.createElement('a');
+
         element.setAttribute('href', 'data:text/calendar;charset=utf-8,'
             + 'BEGIN:VCALENDAR\n' +
+            'VERSION:2.0\n' +
+            'PRODID:-//ZContent.net//Zap Calendar 1.0//EN\n' +
+            'CALSCALE:GREGORIAN\n' +
+            'METHOD:PUBLISH\n' +
             'BEGIN:VEVENT\n' +
+            'SEQUENCE:0\n' +
             'DTSTAMP:20200627T123349Z\n' +
-            'UID:20200627T123349Z-1508030932@marudot.com\n' +
-            'DTSTART;VALUE=DATE:20200627\n' +
-            'DTEND;VALUE=DATE:20200628\n' +
+            'DTSTART:20200704\n' +
+            'DTEND:202000704\n' +
             'SUMMARY:Test123\n' +
             'DESCRIPTION:foo\n' +
             'LOCATION:hawaii\n' +
-            'END:VEVENT' +
-            'END: VCALENDAR');
+            'END:VEVENT\n' +
+            'END:VCALENDAR');
+
         element.setAttribute('download', "test.ics");
 
 

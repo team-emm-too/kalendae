@@ -67,14 +67,13 @@ class App extends React.Component {
         } else {
             console.log("error");
             this.setState({error: errorMessages});
-            return;
         }
     };
 
     handleChange = (e) => {
         this.setState({[e.target.name]: e.target.value});
         console.log(e.target.value.split('-').join('').replace(':', ''));
-    }
+    };
 
     render() {
         console.log(this.state.error);
@@ -96,7 +95,7 @@ class App extends React.Component {
             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
 
             <Form.Button>Submit</Form.Button>
-            {this.state.error.length != 0 ? <Message
+            {this.state.error.length !== 0 ? <Message
                 error
                 header='Action Forbidden'
                 list={this.state.error}

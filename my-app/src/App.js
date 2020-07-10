@@ -1,58 +1,74 @@
 import React from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css'
-import { Grid, Header, Form, TextArea, Menu } from 'semantic-ui-react';
+import { Grid, Header, Form, TextArea, Menu, Message } from 'semantic-ui-react';
 
 class App extends React.Component {
-    state = {eventName: "", eventLocation: "", start: "", end: "", eventDescription: "" };
+    state = {eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", error: [] };
 
     submit = (e, {formData}) => {
         e.preventDefault();
         let element = document.createElement('a');
         let date = new Date();
+        let startDate = new Date(this.state.start);
+        let endDate = new Date(this.state.end);
+        let formError = false;
+        let errorMessages = [];
+
+        if(startDate > endDate) {
+            formError = true;
+            errorMessages.push("The event start date cannot be later than the event end date!")
+        }
+
         let currentDateTime = date.getFullYear() + '' +
             + '' + (date.getMonth() + 1) + '' + ("0" + date.getDate()).slice(-2) + 'T' +
             ("0" + date.getHours()).slice(-2) + '' + ("0" + date.getMinutes()).slice(-2) + '' +
             ("0" + date.getSeconds()).slice(-2);
         element.setAttribute('href', 'data:text/calendar;charset=utf-8,' +
             //Starting Calendar
-            'BEGIN:VCALENDAR\n' +
+            'BEGIN:VCALENDAR\r\n' +
             //Calendar Version
-            'VERSION:2.0\n' +
-            'PRODID:-//ZContent.net//Zap Calendar 1.0//EN\n' +
+            'VERSION:2.0\r\n' +
+            'PRODID:-//Team-emm-too//Kalendae//EN\r\n' +
             //Calendar Type
-            'CALSCALE:GREGORIAN\n' +
-            'METHOD:PUBLISH\n' +
+            'CALSCALE:GREGORIAN\r\n' +
+            'METHOD:PUBLISH\r\n' +
             //Starting Event
-            'BEGIN:VEVENT\n' +
-            'SEQUENCE:0\n' +
+            'BEGIN:VEVENT\r\n' +
+            'SEQUENCE:0\r\n' +
             // Time event was created
-            'DTSTAMP:' + currentDateTime + '\n' +
+            'DTSTAMP:' + currentDateTime + '\r\n' +
             //Start time of event
-            'DTSTART:' + this.state.start.split('-').join('').replace(':', '') + '00\n' +
+            'DTSTART:' + this.state.start.split('-').join('').replace(':', '') + '00\r\n' +
             //End time of event
-            'DTEND:' + this.state.end.split('-').join('').replace(':', '') + '00\n' +
+            'DTEND:' + this.state.end.split('-').join('').replace(':', '') + '00\r\n' +
             //Event Name
-            'SUMMARY:' + this.state.eventName + '\n' +
+            'SUMMARY:' + this.state.eventName + '\r\n' +
             //Event Description
-            'DESCRIPTION:' + this.state.eventDescription + '\n' +
+            'DESCRIPTION:' + this.state.eventDescription + '\r\n' +
             //Event Location
-            'LOCATION:' + this.state.eventLocation + '\n' +
+            'LOCATION:' + this.state.eventLocation + '\r\n' +
             //Ending Event
-            'END:VEVENT\n' +
+            'END:VEVENT\r\n' +
             //Ending Calendar
-            'END:VCALENDAR');
+            'END:VCALENDAR\r\n');
 
-        element.setAttribute('download', this.state.eventName + ".ics");
+        if (!formError) {
+            element.setAttribute('download', this.state.eventName + ".ics");
 
-        element.style.display = 'none';
-        document.body.appendChild(element);
+            element.style.display = 'none';
+            document.body.appendChild(element);
 
-        element.click();
+            element.click();
 
-        document.body.removeChild(element);
+            document.body.removeChild(element);
 
-        this.setState({eventName: "", eventLocation: "", start: "", end: "", eventDescription: "" });
+            this.setState({eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", error: [] });
+        } else {
+            console.log("error");
+            this.setState({error: errorMessages});
+            return;
+        }
     };
 
     handleChange = (e) => {
@@ -61,6 +77,7 @@ class App extends React.Component {
     }
 
     render() {
+        console.log(this.state.error);
         return (
             <div className="App">
         <Menu>
@@ -69,15 +86,21 @@ class App extends React.Component {
             <Grid container>
         <Grid.Column>
         <Header as="h2" textAlign="center" className='white'>Add an Event!</Header>
-        <Form onSubmit={this.submit}>
-            <Form.Input fluid  name='eventName' value={this.state.eventName} label='Event Name' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
+        <Form onSubmit={this.submit} error>
+            <Form.Input required fluid  name='eventName' value={this.state.eventName} label='Event Name' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
             <Form.Group widths='equal'>
-            <Form.Input name='eventLocation' label='Location' placeholder='Ex. 1234 Foo St. Honolulu, HI 96821' onChange={this.handleChange}/>
-            <Form.Input  name='start' label=' Start Date' type='datetime-local' onChange={this.handleChange}/>
-            <Form.Input  name='end' label=' End Date' type='datetime-local' onChange={this.handleChange}/>
+            <Form.Input required name='eventLocation' value={this.state.eventLocation} label='Location' placeholder='Ex. 1234 Foo St. Honolulu, HI 96821' onChange={this.handleChange}/>
+            <Form.Input  required name='start' value={this.state.start} label='Start Date' type='datetime-local' onChange={this.handleChange}/>
+            <Form.Input  required name='end' value={this.state.end} label='End Date' type='datetime-local' onChange={this.handleChange}/>
             </Form.Group>
-            <Form.Input name='eventDescription' control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
+            <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
+
             <Form.Button>Submit</Form.Button>
+            {this.state.error.length != 0 ? <Message
+                error
+                header='Action Forbidden'
+                list={this.state.error}
+            /> : ""}
         </Form>
         <br/>
         <br/>

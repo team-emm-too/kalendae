@@ -65,8 +65,8 @@ class App extends React.Component {
             <Form.Input fluid  label='Event Name' placeholder='Ex. New Year Party' />
             <Form.Group widths='equal'>
             <Form.Input   label='Location' placeholder='Ex. 1234 Foo St. Honolulu, HI 96821' />
-            <Form.Input  label=' Start Date' type='datetime-local' />
-            <Form.Input  label=' End Date' type='datetime-local' />
+            <Form.Input  label='Start Date' type='datetime-local' />
+            <Form.Input  label='End Date' type='datetime-local' />
             </Form.Group>
             <Form.Input control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' />
             <Form.Button>Submit</Form.Button>

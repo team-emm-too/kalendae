@@ -4,7 +4,15 @@ import 'semantic-ui-css/semantic.min.css'
 import { Grid, Header, Form, TextArea, Menu, Message } from 'semantic-ui-react';
 
 class App extends React.Component {
-    state = {eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", error: [] };
+
+    state = {eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", repeat: "", error: [],
+      repeatOptions: [
+        { key: 'd', value: 'DAILY', text: 'Daily' },
+        { key: 'w', value: 'WEEKLY', text: 'Weekly' },
+        { key: 'm', value: 'MONTHLY', text: 'Monthly' },
+        { key: 'y', value: 'YEARLY', text: 'Yearly' },
+      ],
+    };
 
     submit = (e, {formData}) => {
         e.preventDefault();
@@ -24,6 +32,10 @@ class App extends React.Component {
             + '' + (date.getMonth() + 1) + '' + ("0" + date.getDate()).slice(-2) + 'T' +
             ("0" + date.getHours()).slice(-2) + '' + ("0" + date.getMinutes()).slice(-2) + '' +
             ("0" + date.getSeconds()).slice(-2);
+        let recurrence = '';
+        if (this.state.repeat !== '') {
+          recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
+        }
         element.setAttribute('href', 'data:text/calendar;charset=utf-8,' +
             //Starting Calendar
             'BEGIN:VCALENDAR\r\n' +
@@ -48,6 +60,8 @@ class App extends React.Component {
             'DESCRIPTION:' + this.state.eventDescription + '\r\n' +
             //Event Location
             'LOCATION:' + this.state.eventLocation + '\r\n' +
+            //Recurrence
+            recurrence +
             //Ending Event
             'END:VEVENT\r\n' +
             //Ending Calendar
@@ -63,7 +77,14 @@ class App extends React.Component {
 
             document.body.removeChild(element);
 
-            this.setState({eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", error: [] });
+            this.setState({eventName: "", eventLocation: "", start: "", end: "", repeat: "", eventDescription: "", error: [],
+              repeatOptions: [
+                { key: 'd', value: 'DAILY', text: 'Daily' },
+                { key: 'w', value: 'WEEKLY', text: 'Weekly' },
+                { key: 'm', value: 'MONTHLY', text: 'Monthly' },
+                { key: 'y', value: 'YEARLY', text: 'Yearly' },
+              ],
+            });
         } else {
             console.log("error");
             this.setState({error: errorMessages});
@@ -81,7 +102,7 @@ class App extends React.Component {
             <div className="App">
         <Menu>
         <Header as="h1">Kalendae</Header>
-            </Menu>
+        </Menu>
             <Grid container>
         <Grid.Column>
         <Header as="h2" textAlign="center" className='white'>Add an Event!</Header>
@@ -89,8 +110,15 @@ class App extends React.Component {
             <Form.Input required fluid  name='eventName' value={this.state.eventName} label='Event Name' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
             <Form.Group widths='equal'>
             <Form.Input required name='eventLocation' value={this.state.eventLocation} label='Location' placeholder='Ex. 1234 Foo St. Honolulu, HI 96821' onChange={this.handleChange}/>
-            <Form.Input  required name='start' value={this.state.start} label='Start Date' type='datetime-local' onChange={this.handleChange}/>
-            <Form.Input  required name='end' value={this.state.end} label='End Date' type='datetime-local' onChange={this.handleChange}/>
+            <Form.Input required name='start' value={this.state.start} label='Start Date' type='datetime-local' onChange={this.handleChange}/>
+            <Form.Input required name='end' value={this.state.end} label='End Date' type='datetime-local' onChange={this.handleChange}/>
+            <Form.Select name='repeat' value={this.state.repeat} label='Repeat' options={this.state.repeatOptions}
+                         onChange={
+                           (e, {value}) => {
+                             this.setState({repeat: value});
+                           }
+                         }
+            />
             </Form.Group>
             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}  label='Event Description' placeholder='Ex. New Year Party' onChange={this.handleChange}/>
 

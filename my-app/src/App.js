@@ -6,7 +6,15 @@ import { Form, Grid, Header, Menu, Message, TextArea } from 'semantic-ui-react';
 class App extends React.Component {
 
   state = {
-    eventName: "", eventLocation: "", start: "", end: "", eventDescription: "", repeat: "", class: "", error: [],
+    eventName: "",
+    eventLocation: "",
+    start: "",
+    end: "",
+    eventDescription: "",
+    repeat: "",
+    class: "",
+    priority: "",
+    error: [],
     repeatOptions: [
       { key: 'd', value: 'DAILY', text: 'Daily' },
       { key: 'w', value: 'WEEKLY', text: 'Weekly' },
@@ -17,6 +25,11 @@ class App extends React.Component {
       { key: 'u', value: 'PUBLIC', text: 'Public' },
       { key: 'r', value: 'PRIVATE', text: 'Private' },
       { key: 'CONFIDENTIAL', text: 'Confidential' },
+    ],
+    priorityOptions: [
+      { key: 'h', value: '1', text: 'High' },
+      { key: 'm', value: '5', text: 'Medium' },
+      { key: 'l', value: '9', text: 'Low' },
     ],
   };
 
@@ -40,6 +53,7 @@ class App extends React.Component {
         ("0" + date.getSeconds()).slice(-2);
     let recurrence = '';
     let classification = '';
+    let priority = '';
 
     if (this.state.repeat !== '') {
       recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
@@ -47,6 +61,10 @@ class App extends React.Component {
 
     if (this.state.class !== '') {
       classification += 'CLASS:' + this.state.class + '\r\n';
+    }
+
+    if (this.state.priority !== '') {
+      priority += 'PRIORITY:' + this.state.priority + '\r\n';
     }
 
     element.setAttribute('href', 'data:text/calendar;charset=utf-8,' +
@@ -77,6 +95,8 @@ class App extends React.Component {
         recurrence +
         //Classification
         classification +
+        //Priority
+        priority +
         //Ending Event
         'END:VEVENT\r\n' +
         //Ending Calendar
@@ -93,7 +113,15 @@ class App extends React.Component {
       document.body.removeChild(element);
 
       this.setState({
-        eventName: "", eventLocation: "", start: "", end: "", repeat: "", class: "", eventDescription: "", error: [],
+        eventName: "",
+        eventLocation: "",
+        start: "",
+        end: "",
+        repeat: "",
+        class: "",
+        priority: "",
+        eventDescription: "",
+        error: [],
         repeatOptions: [
           { key: 'd', value: 'DAILY', text: 'Daily' },
           { key: 'w', value: 'WEEKLY', text: 'Weekly' },
@@ -104,6 +132,11 @@ class App extends React.Component {
           { key: 'u', value: 'PUBLIC', text: 'Public' },
           { key: 'r', value: 'PRIVATE', text: 'Private' },
           { key: 'CONFIDENTIAL', text: 'Confidential' },
+        ],
+        priorityOptions: [
+          { key: 'h', value: '1', text: 'High' },
+          { key: 'm', value: '5', text: 'Medium' },
+          { key: 'l', value: '9', text: 'Low' },
         ],
       });
     } else {
@@ -149,6 +182,14 @@ class App extends React.Component {
                                onChange={
                                  (e, { value }) => {
                                    this.setState({ class: value });
+                                 }
+                               }
+                  />
+                  <Form.Select name='priority' value={this.state.priority} label='Priority'
+                               options={this.state.priorityOptions}
+                               onChange={
+                                 (e, { value }) => {
+                                   this.setState({ priority: value });
                                  }
                                }
                   />

@@ -66,7 +66,8 @@ class App extends React.Component {
         let endDate = new Date(this.state.end);
         let formError = false;
         let errorMessages = [];
-
+        let location = document.getElementById('pac-input');
+        console.log(location.value, "test");
         if (startDate > endDate) {
             formError = true;
             errorMessages.push("The event start date cannot be later than the event end date!")
@@ -269,6 +270,13 @@ class App extends React.Component {
                         <br/>
                     </Grid.Column>
                 </Grid>
+                <input
+                    id="pac-input"
+                    className="controls"
+                    type="text"
+                    placeholder="Search Box"
+                />
+                <div id="map"></div>
             </div>
         );
     }

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/kalendae/precache-manifest.2de4f2b99a190fd3b65dde5bb6a2cd7e.js"
+  "/kalendae/precache-manifest.b6e4db03cb99fde1c173d88df4c448b2.js"
 );
 
 self.addEventListener('message', (event) => {

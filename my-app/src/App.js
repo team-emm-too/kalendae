@@ -17,7 +17,10 @@ class App extends React.Component {
         error: [],
         timezone: "",
         RSVP: false,
+        toRSVP: "",
+        sender: "",
         repeatOptions: [
+            {key: 'n', value: '', text: 'No Repeat'},
             {key: 'd', value: 'DAILY', text: 'Daily'},
             {key: 'w', value: 'WEEKLY', text: 'Weekly'},
             {key: 'm', value: 'MONTHLY', text: 'Monthly'},
@@ -39,14 +42,14 @@ class App extends React.Component {
         let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         let xhr = new XMLHttpRequest();
         xhr.responseType = "text";//force the HTTP response, response-type header to be blob
-        xhr.onreadystatechange = function (e) {
+        xhr.onreadystatechange = function () {
              if(xhr.readyState === 4 && xhr.status === 200) {
                 let arr =  xhr.response.split("\r\n");
                  let result = arr.slice(arr.indexOf("BEGIN:VTIMEZONE"), arr.indexOf("END:VTIMEZONE") + 1).join("\r\n");
                 this.setState({timezone: result});
              }
         }.bind(this);
-        xhr.open("GET", `http://tzurl.org/zoneinfo-outlook/${timezone}`);
+        xhr.open("GET", `https://cors-anywhere.herokuapp.com/http://tzurl.org/zoneinfo-outlook/${timezone}`);
         xhr.send();
     }
 
@@ -55,7 +58,7 @@ class App extends React.Component {
     }
 
 
-    submit = (e, {formData}) => {
+    submit = (e) => {
         e.preventDefault();
         let element = document.createElement('a');
         let date = new Date();
@@ -77,6 +80,7 @@ class App extends React.Component {
         let classification = '';
         let priority = '';
         let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let RSVP = "";
 
         if (this.state.repeat !== '') {
             recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
@@ -89,6 +93,11 @@ class App extends React.Component {
         if (this.state.priority !== '') {
             priority += 'PRIORITY:' + this.state.priority + '\r\n';
         }
+
+        if(this.state.RSVP === true) {
+            RSVP = 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:MAILTO:' + this.state.toRSVP + '\r\n';
+        }
+
 
         element.setAttribute('href', 'data:text/calendar;charset=utf-8,' +
             //Starting Calendar
@@ -123,6 +132,10 @@ class App extends React.Component {
             classification +
             //Priority
             priority +
+            //Organizer(Sender)
+            "ORGANIZER:MAILTO:" + this.state.sender + '\r\n' +
+            //Attendee
+            RSVP +
             //Ending Event
             'END:VEVENT\r\n' +
             //Ending Calendar
@@ -132,6 +145,7 @@ class App extends React.Component {
             element.setAttribute('download', this.state.eventName + ".ics");
 
             element.style.display = 'none';
+
             document.body.appendChild(element);
 
             element.click();
@@ -148,22 +162,22 @@ class App extends React.Component {
                 priority: "",
                 eventDescription: "",
                 error: [],
-                repeatOptions: [
-                    {key: 'd', value: 'DAILY', text: 'Daily'},
-                    {key: 'w', value: 'WEEKLY', text: 'Weekly'},
-                    {key: 'm', value: 'MONTHLY', text: 'Monthly'},
-                    {key: 'y', value: 'YEARLY', text: 'Yearly'},
-                ],
-                classOptions: [
-                    {key: 'u', value: 'PUBLIC', text: 'Public'},
-                    {key: 'r', value: 'PRIVATE', text: 'Private'},
-                    {key: 'CONFIDENTIAL', text: 'Confidential'},
-                ],
-                priorityOptions: [
-                    {key: 'h', value: '1', text: 'High'},
-                    {key: 'm', value: '5', text: 'Medium'},
-                    {key: 'l', value: '9', text: 'Low'},
-                ],
+                // repeatOptions: [
+                //     {key: 'd', value: 'DAILY', text: 'Daily'},
+                //     {key: 'w', value: 'WEEKLY', text: 'Weekly'},
+                //     {key: 'm', value: 'MONTHLY', text: 'Monthly'},
+                //     {key: 'y', value: 'YEARLY', text: 'Yearly'},
+                // ],
+                // classOptions: [
+                //     {key: 'u', value: 'PUBLIC', text: 'Public'},
+                //     {key: 'r', value: 'PRIVATE', text: 'Private'},
+                //     {key: 'CONFIDENTIAL', text: 'Confidential'},
+                // ],
+                // priorityOptions: [
+                //     {key: 'h', value: '1', text: 'High'},
+                //     {key: 'm', value: '5', text: 'Medium'},
+                //     {key: 'l', value: '9', text: 'Low'},
+                // ],
             });
         } else {
             console.log("error");
@@ -176,7 +190,7 @@ class App extends React.Component {
         console.log(e.target.value.split('-').join('').replace(':', ''));
     };
 
-    showRSVP = (e) => {
+    showRSVP = () => {
         this.setState({RSVP: !this.state.RSVP});
     }
 
@@ -235,10 +249,11 @@ class App extends React.Component {
                             <Form.Group>
                                 <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>
                                 {this.state.RSVP === true ?
-                                    <Form.Input type='email' multiple name='toRSVP' label='RSVP To'
-                                                placeholder='Ex. attendee@email.com'/> : ""}
-                                {this.state.RSVP === true ? <Form.Input type='email' name='sender' label='Sender Email'
-                                                                        placeholder='Ex. sender@email.com'/> : ""}
+                                    <Form.Input required type='email' value={this.state.toRSVP} multiple name='toRSVP' label='RSVP To'
+                                                placeholder='Ex. attendee@email.com' onChange={this.handleChange}/> : ""}
+                                {this.state.RSVP === true ?
+                                    <Form.Input required type='email' value={this.state.sender} name='sender' label='Sender Email'
+                                                                        placeholder='Ex. sender@email.com' onChange={this.handleChange}/> : ""}
                             </Form.Group>
                             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}
                                         label='Event Description' placeholder='Ex. New Year Party'

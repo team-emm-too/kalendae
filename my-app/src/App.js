@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css'
-import {Form, Grid, Header, Menu, Message, TextArea} from 'semantic-ui-react';
+import { Form, Grid, Header, Menu, Message, TextArea, Input } from 'semantic-ui-react';
 
 class App extends React.Component {
 
@@ -270,7 +270,7 @@ class App extends React.Component {
                         <br/>
                     </Grid.Column>
                 </Grid>
-                <input
+                <Input
                     id="pac-input"
                     className="controls"
                     type="text"

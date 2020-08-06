@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Form, Grid, Header, Menu, Message, TextArea, Input } from 'semantic-ui-react';
+import { Form, Grid, Header, Menu, Message, TextArea, } from 'semantic-ui-react';
 
 class App extends React.Component {
     state = {
@@ -53,11 +53,6 @@ class App extends React.Component {
         xhr.send();
         this.initAutocomplete();
     }
-
-     setTimezone = function(text) {
-        this.setState({timezone: text});
-    }
-
 
     submit = (e) => {
         e.preventDefault();
@@ -203,7 +198,7 @@ class App extends React.Component {
 
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
-        const searchBox = new google.maps.places.Autocomplete(input);
+        const searchBox = new window.google.maps.places.Autocomplete(input);
 
         // Listen for the event fired when the user selects a prediction and retrieve
         // more details for that place.

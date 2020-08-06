@@ -51,6 +51,7 @@ class App extends React.Component {
         }.bind(this);
         xhr.open("GET", `https://cors-anywhere.herokuapp.com/http://tzurl.org/zoneinfo-outlook/${timezone}`);
         xhr.send();
+        this.initAutocomplete();
     }
 
      setTimezone = function(text) {
@@ -66,8 +67,6 @@ class App extends React.Component {
         let endDate = new Date(this.state.end);
         let formError = false;
         let errorMessages = [];
-        let location = document.getElementById('pac-input');
-        console.log(location.value, "test");
         if (startDate > endDate) {
             formError = true;
             errorMessages.push("The event start date cannot be later than the event end date!")
@@ -215,7 +214,6 @@ class App extends React.Component {
     }
 
     render() {
-        this.initAutocomplete();
         return (
             <div className="App">
                 <Menu>

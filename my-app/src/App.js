@@ -1,10 +1,9 @@
 import React from 'react';
 import './App.css';
-import 'semantic-ui-css/semantic.min.css'
+import 'semantic-ui-css/semantic.min.css';
 import { Form, Grid, Header, Menu, Message, TextArea, Input } from 'semantic-ui-react';
 
 class App extends React.Component {
-
     state = {
         eventName: "",
         eventLocation: "",
@@ -18,6 +17,7 @@ class App extends React.Component {
         timezone: "",
         RSVP: false,
         toRSVP: "",
+        GEO: "",
         sender: "",
         repeatOptions: [
             {key: 'n', value: '', text: 'No Repeat'},
@@ -127,6 +127,8 @@ class App extends React.Component {
             'DESCRIPTION:' + this.state.eventDescription + '\r\n' +
             //Event Location
             'LOCATION:' + this.state.eventLocation + '\r\n' +
+            //GEO LOCATION
+            'GEO:' + this.state.GEO + '\r\n' +
             //Recurrence
             recurrence +
             //Classification
@@ -188,16 +190,32 @@ class App extends React.Component {
 
     handleChange = (e) => {
         this.setState({[e.target.name]: e.target.value});
-        console.log(e.target.value.split('-').join('').replace(':', ''));
     };
+
+    handlePlaceChange = (place) => {
+        this.setState({eventLocation: place.formatted_address, GEO: `${place.geometry.location.lat()};${place.geometry.location.lng()}`});
+    }
 
     showRSVP = () => {
         this.setState({RSVP: !this.state.RSVP});
     }
 
+    initAutocomplete = ()=> {
+
+        // Create the search box and link it to the UI element.
+        const input = document.getElementById("pac-input");
+        const searchBox = new google.maps.places.Autocomplete(input);
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place.
+        searchBox.addListener("place_changed", () => {
+            const place = searchBox.getPlace();
+            this.handlePlaceChange(place)
+        });
+    }
+
     render() {
-        console.log(this.state.error);
-        console.log(this.state.timezone);
+        this.initAutocomplete();
         return (
             <div className="App">
                 <Menu>
@@ -210,10 +228,11 @@ class App extends React.Component {
                             <Form.Input required fluid name='eventName' value={this.state.eventName} label='Event Name'
                                         placeholder='Ex. New Year Party' onChange={this.handleChange}/>
                             <Form.Group widths='equal'>
-                                <Form.Input required name='eventLocation' value={this.state.eventLocation}
+                                <Form.Input id="pac-input" required name='eventLocation' value={this.state.eventLocation}
                                             label='Location'
                                             placeholder='Ex. 1234 Foo St. Honolulu, HI 96821'
-                                            onChange={this.handleChange}/>
+                                            onChange={this.handleChange}
+                                            />
                                 <Form.Input required name='start' value={this.state.start} label='Start Date'
                                             type='datetime-local'
                                             onChange={this.handleChange}/>
@@ -270,13 +289,6 @@ class App extends React.Component {
                         <br/>
                     </Grid.Column>
                 </Grid>
-                <Input
-                    id="pac-input"
-                    className="controls"
-                    type="text"
-                    placeholder="Search Box"
-                />
-                <div id="map"></div>
             </div>
         );
     }

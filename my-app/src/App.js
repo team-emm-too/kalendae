@@ -21,6 +21,7 @@ class App extends React.Component {
         GEO: "",
         sender: "",
         resources: [],
+        resource: '',
         repeatOptions: [
             {key: 'n', value: '', text: 'No Repeat'},
             {key: 'd', value: 'DAILY', text: 'Daily'},
@@ -79,7 +80,8 @@ class App extends React.Component {
         let classification = '';
         let priority = '';
         let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        let RSVP = "";
+        let RSVP = '';
+        let resource = 'RESOURCE:';
 
         if (this.state.repeat !== '') {
             recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
@@ -95,8 +97,16 @@ class App extends React.Component {
 
         if(this.state.RSVP === true) {
             this.state.arrRSVP.forEach(
-                (value) => RSVP += 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\r\n' + ' RSVP=TRUE:MAILTO:' + value + '\r\n'
+                (value) => RSVP += 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\r\n RSVP=TRUE:MAILTO:' + value + '\r\n'
             )
+        }
+
+        if(this.state.resources.length !== 0) {
+            this.state.resources.forEach(
+                (value) => (resource.substring(resource.indexOf('\n')).length + value.length > 28) ? resource += `\r\n ${value},` : resource += `${value},`
+            );
+            resource = resource.substring(0, resource.length - 1);
+            resource += '\r\n';
         }
 
 
@@ -139,6 +149,8 @@ class App extends React.Component {
             "ORGANIZER:MAILTO:" + this.state.sender + '\r\n' +
             //Attendee
             RSVP +
+            //Resources
+            resource +
             //Ending Event
             'END:VEVENT\r\n' +
             //Ending Calendar
@@ -165,12 +177,13 @@ class App extends React.Component {
                 class: "",
                 priority: "",
                 error: [],
-                timezone: "",
                 RSVP: false,
                 toRSVP: "",
                 arrRSVP: [],
                 GEO: "",
                 sender: "",
+                resources: [],
+                resource: ''
 
             });
         } else {
@@ -194,13 +207,25 @@ class App extends React.Component {
     handleRSVP = () => {
         if(this.state.arrRSVP.indexOf(this.state.toRSVP) === -1) {
             let arr = this.state.arrRSVP;
-            arr.push(this.state.toRSVP)
+            arr.push(this.state.toRSVP);
             this.setState({ arrRSVP: arr, toRSVP: '' });
         }
         else {
             this.setState({ toRSVP: '' });
         }
 
+    }
+
+    handleResources = () => {
+        if (this.state.resources.indexOf(this.state.resource) === -1) {
+            let arr = this.state.resources;
+            arr.push(this.state.resource);
+            this.setState({resources: arr, resource: ''});
+        } else {
+            this.setState({resource: ''});
+        }
+
+        console.log(this.state.resources);
     }
 
     handleRemove = (value) => {
@@ -210,7 +235,14 @@ class App extends React.Component {
         this.setState({ arrRSVP: arr });
     }
 
-    initAutocomplete = ()=> {
+    handleResourceRemove = (value) => {
+        let index = this.state.resources.indexOf(value);
+        let arr = this.state.resources.slice();
+        arr.splice(index, 1);
+        this.setState({ resources: arr });
+    }
+
+    initAutocomplete = () => {
 
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
@@ -222,6 +254,18 @@ class App extends React.Component {
             const place = searchBox.getPlace();
             this.handlePlaceChange(place)
         });
+    }
+
+    handleEnter = (event) => {
+        if(event.which === 13) {
+            event.preventDefault();
+            if(event.target.name === 'resource') {
+                this.handleResources();
+            }
+            else if(event.target.name === 'toRSVP') {
+                this.handleRSVP();
+            }
+        }
     }
 
     render() {
@@ -236,6 +280,7 @@ class App extends React.Component {
                         <Form onSubmit={this.submit} error>
                             <Form.Input required fluid name='eventName' value={this.state.eventName} label='Event Name'
                                         placeholder='Ex. New Year Party' onChange={this.handleChange}/>
+
                             <Form.Group widths='equal'>
                                 <Form.Input id="pac-input" required name='eventLocation' value={this.state.eventLocation}
                                             label='Location'
@@ -249,6 +294,7 @@ class App extends React.Component {
                                             type='datetime-local'
                                             onChange={this.handleChange}/>
                             </Form.Group>
+
                             <Form.Group widths='equal'>
                                 <Form.Select name='repeat' value={this.state.repeat} label='Repeat'
                                              options={this.state.repeatOptions}
@@ -275,23 +321,40 @@ class App extends React.Component {
                                              }
                                 />
                             </Form.Group>
+
                             <Form.Group>
-                                <Form.Input action={
-                                    <Button type="button" onClick={this.handleRSVP} icon>
+                                <Form.Input
+                                            action={
+                                    <Button type="button" onClick={this.handleResources} icon>
                                         <Icon name="add"/>
                                     </Button>}
-                                            type='text' value={this.state.toRSVP} name='Resources' label='Resources'
-                                            placeholder='Ex. Projector, Camera, etc.' onChange={this.handleChange}/>
+                                            type='text' value={this.state.resource} name='resource' label='Resources'
+                                            placeholder='Ex. Projector, Camera, etc.' onChange={this.handleChange} onKeyDown={this.handleEnter}/>
+                                <Container fluid>
+                                    <Header as='h5'>Resource List</Header>
+                                    <List ordered horizontal>
+                                        {this.state.resources.map((value) =>
+                                            <List.Item key={value}>
+                                                {value}
+                                                <Button style={{backgroundColor: 'transparent'}} type='button' size='tiny'
+                                                        value={value} onClick={(e) => this.handleResourceRemove(e.target.value)} icon circular>
+                                                    <Icon color='red' name='close'/>
+                                                </Button>
+                                            </List.Item>)}
+                                    </List>
+                                </Container>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>
+                            </Form.Group>
+                            <Form.Group>
                                 {this.state.RSVP === true ?
                                     <Form.Input action={
                                         <Button type="button" onClick={this.handleRSVP} icon>
                                             <Icon name="add"/>
                                         </Button>}
                                                 type='email' value={this.state.toRSVP} multiple name='toRSVP' label='RSVP To'
-                                                placeholder='Ex. attendee@email.com' onChange={this.handleChange}/> : ""}
+                                                placeholder='Ex. attendee@email.com' onChange={this.handleChange} onKeyDown={this.handleEnter}/> : ""}
                                 {this.state.RSVP === true ?
                                     <Form.Input required type='email' value={this.state.sender} name='sender' label='Organizer Email'
                                                                         placeholder='Ex. organizer@email.com' onChange={this.handleChange}/> : ""}
@@ -313,6 +376,7 @@ class App extends React.Component {
                                         </Container>
                                     ): ""}
                             </Form.Group>
+
                             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}
                                         label='Event Description' placeholder='Ex. New Year Party'
                                         onChange={this.handleChange}/>

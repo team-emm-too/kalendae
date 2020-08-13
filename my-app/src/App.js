@@ -20,6 +20,7 @@ class App extends React.Component {
         arrRSVP: [],
         GEO: "",
         sender: "",
+        resources: [],
         repeatOptions: [
             {key: 'n', value: '', text: 'No Repeat'},
             {key: 'd', value: 'DAILY', text: 'Daily'},
@@ -273,6 +274,14 @@ class App extends React.Component {
                                                  }
                                              }
                                 />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Input action={
+                                    <Button type="button" onClick={this.handleRSVP} icon>
+                                        <Icon name="add"/>
+                                    </Button>}
+                                            type='text' value={this.state.toRSVP} name='Resources' label='Resources'
+                                            placeholder='Ex. Projector, Camera, etc.' onChange={this.handleChange}/>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>

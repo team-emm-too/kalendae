@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Form, Grid, Header, Menu, Message, TextArea, } from 'semantic-ui-react';
+import { Form, Grid, Header, Menu, Message, TextArea, Button, Icon, List, Container } from 'semantic-ui-react';
 
 class App extends React.Component {
     state = {
@@ -17,6 +17,7 @@ class App extends React.Component {
         timezone: "",
         RSVP: false,
         toRSVP: "",
+        arrRSVP: [],
         GEO: "",
         sender: "",
         repeatOptions: [
@@ -62,6 +63,8 @@ class App extends React.Component {
         let endDate = new Date(this.state.end);
         let formError = false;
         let errorMessages = [];
+
+        //Date checking
         if (startDate > endDate) {
             formError = true;
             errorMessages.push("The event start date cannot be later than the event end date!")
@@ -90,7 +93,9 @@ class App extends React.Component {
         }
 
         if(this.state.RSVP === true) {
-            RSVP = 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:MAILTO:' + this.state.toRSVP + '\r\n';
+            this.state.arrRSVP.forEach(
+                (value) => RSVP += 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\r\n' + ' RSVP=TRUE:MAILTO:' + value + '\r\n'
+            )
         }
 
 
@@ -154,36 +159,27 @@ class App extends React.Component {
                 eventLocation: "",
                 start: "",
                 end: "",
+                eventDescription: "",
                 repeat: "",
                 class: "",
                 priority: "",
-                eventDescription: "",
                 error: [],
-                // repeatOptions: [
-                //     {key: 'd', value: 'DAILY', text: 'Daily'},
-                //     {key: 'w', value: 'WEEKLY', text: 'Weekly'},
-                //     {key: 'm', value: 'MONTHLY', text: 'Monthly'},
-                //     {key: 'y', value: 'YEARLY', text: 'Yearly'},
-                // ],
-                // classOptions: [
-                //     {key: 'u', value: 'PUBLIC', text: 'Public'},
-                //     {key: 'r', value: 'PRIVATE', text: 'Private'},
-                //     {key: 'CONFIDENTIAL', text: 'Confidential'},
-                // ],
-                // priorityOptions: [
-                //     {key: 'h', value: '1', text: 'High'},
-                //     {key: 'm', value: '5', text: 'Medium'},
-                //     {key: 'l', value: '9', text: 'Low'},
-                // ],
+                timezone: "",
+                RSVP: false,
+                toRSVP: "",
+                arrRSVP: [],
+                GEO: "",
+                sender: "",
+
             });
         } else {
             console.log("error");
-            this.setState({error: errorMessages});
+            this.setState({ error: errorMessages });
         }
     };
 
     handleChange = (e) => {
-        this.setState({[e.target.name]: e.target.value});
+        this.setState({ [e.target.name]: e.target.value });
     };
 
     handlePlaceChange = (place) => {
@@ -191,7 +187,26 @@ class App extends React.Component {
     }
 
     showRSVP = () => {
-        this.setState({RSVP: !this.state.RSVP});
+        this.setState({ RSVP: !this.state.RSVP });
+    }
+
+    handleRSVP = () => {
+        if(this.state.arrRSVP.indexOf(this.state.toRSVP) === -1) {
+            let arr = this.state.arrRSVP;
+            arr.push(this.state.toRSVP)
+            this.setState({ arrRSVP: arr, toRSVP: '' });
+        }
+        else {
+            this.setState({ toRSVP: '' });
+        }
+
+    }
+
+    handleRemove = (value) => {
+        let index = this.state.arrRSVP.indexOf(value);
+        let arr = this.state.arrRSVP.slice();
+        arr.splice(index, 1);
+        this.setState({ arrRSVP: arr });
     }
 
     initAutocomplete = ()=> {
@@ -214,7 +229,7 @@ class App extends React.Component {
                 <Menu>
                     <Header as="h1">Kalendae</Header>
                 </Menu>
-                <Grid container>
+                <Grid container stretched>
                     <Grid.Column>
                         <Header as="h2" textAlign="center" className='white'>Add an Event!</Header>
                         <Form onSubmit={this.submit} error>
@@ -238,7 +253,7 @@ class App extends React.Component {
                                              options={this.state.repeatOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({repeat: value});
+                                                     this.setState({ repeat: value });
                                                  }
                                              }
                                 />
@@ -246,7 +261,7 @@ class App extends React.Component {
                                              options={this.state.classOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({class: value});
+                                                     this.setState({ class: value });
                                                  }
                                              }
                                 />
@@ -254,7 +269,7 @@ class App extends React.Component {
                                              options={this.state.priorityOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({priority: value});
+                                                     this.setState({ priority: value });
                                                  }
                                              }
                                 />
@@ -262,16 +277,37 @@ class App extends React.Component {
                             <Form.Group>
                                 <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>
                                 {this.state.RSVP === true ?
-                                    <Form.Input required type='email' value={this.state.toRSVP} multiple name='toRSVP' label='RSVP To'
+                                    <Form.Input action={
+                                        <Button type="button" onClick={this.handleRSVP} icon>
+                                            <Icon name="add"/>
+                                        </Button>}
+                                                type='email' value={this.state.toRSVP} multiple name='toRSVP' label='RSVP To'
                                                 placeholder='Ex. attendee@email.com' onChange={this.handleChange}/> : ""}
                                 {this.state.RSVP === true ?
-                                    <Form.Input required type='email' value={this.state.sender} name='sender' label='Sender Email'
-                                                                        placeholder='Ex. sender@email.com' onChange={this.handleChange}/> : ""}
+                                    <Form.Input required type='email' value={this.state.sender} name='sender' label='Organizer Email'
+                                                                        placeholder='Ex. organizer@email.com' onChange={this.handleChange}/> : ""}
+                                {this.state.RSVP === true ?
+                                    (
+
+                                        <Container fluid>
+                                            <Header as='h5'>Attendee List</Header>
+                                            <List ordered horizontal>
+                                            {this.state.arrRSVP.map((value) =>
+                                                <List.Item key={value}>
+                                                    {value}
+                                                    <Button style={{backgroundColor: 'transparent'}} type='button' size='tiny'
+                                                            value={value} onClick={(e) => this.handleRemove(e.target.value)} icon circular>
+                                                        <Icon color='red' name='close'/>
+                                                    </Button>
+                                                </List.Item>)}
+                                            </List>
+                                        </Container>
+                                    ): ""}
                             </Form.Group>
                             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}
                                         label='Event Description' placeholder='Ex. New Year Party'
                                         onChange={this.handleChange}/>
-                            <Form.Button>Submit</Form.Button>
+                            <Form.Button>Submit/Download</Form.Button>
                             {this.state.error.length !== 0 ? <Message
                                 error
                                 header='Action Forbidden'

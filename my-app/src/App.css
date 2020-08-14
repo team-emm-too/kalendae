@@ -50,3 +50,7 @@
 .list-header {
   margin-bottom: 4px;
 }
+
+body {
+  background-color: paleturquoise !important;
+}

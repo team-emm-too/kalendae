@@ -241,6 +241,7 @@ class App extends React.Component {
         let arr = this.state.arrRSVP.slice();
         arr.splice(index, 1);
         this.setState({arrRSVP: arr});
+        console.log(index, arr);
     }
 
     handleResourceRemove = (value) => {
@@ -248,6 +249,7 @@ class App extends React.Component {
         let arr = this.state.resources.slice();
         arr.splice(index, 1);
         this.setState({resources: arr});
+        console.log(index, arr, value);
     }
 
     initAutocomplete = () => {
@@ -362,7 +364,7 @@ class App extends React.Component {
                                                     <Button style={{backgroundColor: 'transparent'}} type='button'
                                                             size='tiny'
                                                             value={value}
-                                                            onClick={(e) => this.handleResourceRemove(e.target.value)}
+                                                            onClick={() => this.handleResourceRemove(value)}
                                                             icon
                                                             circular>
                                                         <Icon color='red' name='close'/>
@@ -419,7 +421,7 @@ class App extends React.Component {
                                                             <Button style={{backgroundColor: 'transparent'}}
                                                                     type='button' size='tiny'
                                                                     value={value}
-                                                                    onClick={(e) => this.handleRemove(e.target.value)}
+                                                                    onClick={() => this.handleRemove(value)}
                                                                     icon circular>
                                                                 <Icon color='red' name='close'/>
                                                             </Button>

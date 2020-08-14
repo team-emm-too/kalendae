@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Form, Grid, Header, Menu, Message, TextArea, Button, Icon, List, Container } from 'semantic-ui-react';
+import {Form, Grid, Header, Menu, Message, TextArea, Button, Icon, List} from 'semantic-ui-react';
 
 class App extends React.Component {
     state = {
@@ -10,9 +10,9 @@ class App extends React.Component {
         start: "",
         end: "",
         eventDescription: "",
-        repeat: "",
-        class: "",
-        priority: "",
+        repeat: "No Repeat",
+        class: "PUBLIC",
+        priority: "9",
         error: [],
         timezone: "",
         RSVP: false,
@@ -22,8 +22,9 @@ class App extends React.Component {
         sender: "",
         resources: [],
         resource: '',
+        emailError: false,
         repeatOptions: [
-            {key: 'n', value: '', text: 'No Repeat'},
+            {key: 'n', value: "No Repeat", text: 'No Repeat'},
             {key: 'd', value: 'DAILY', text: 'Daily'},
             {key: 'w', value: 'WEEKLY', text: 'Weekly'},
             {key: 'm', value: 'MONTHLY', text: 'Monthly'},
@@ -32,12 +33,12 @@ class App extends React.Component {
         classOptions: [
             {key: 'u', value: 'PUBLIC', text: 'Public'},
             {key: 'r', value: 'PRIVATE', text: 'Private'},
-            {key: 'CONFIDENTIAL', text: 'Confidential'},
+            {key: 's', value: 'CONFIDENTIAL', text: 'Confidential'},
         ],
         priorityOptions: [
-            {key: 'h', value: '1', text: 'High'},
-            {key: 'm', value: '5', text: 'Medium'},
             {key: 'l', value: '9', text: 'Low'},
+            {key: 'm', value: '5', text: 'Medium'},
+            {key: 'h', value: '1', text: 'High'},
         ],
     };
 
@@ -46,11 +47,11 @@ class App extends React.Component {
         let xhr = new XMLHttpRequest();
         xhr.responseType = "text";//force the HTTP response, response-type header to be blob
         xhr.onreadystatechange = function () {
-             if(xhr.readyState === 4 && xhr.status === 200) {
-                let arr =  xhr.response.split("\r\n");
-                 let result = arr.slice(arr.indexOf("BEGIN:VTIMEZONE"), arr.indexOf("END:VTIMEZONE") + 1).join("\r\n");
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                let arr = xhr.response.split("\r\n");
+                let result = arr.slice(arr.indexOf("BEGIN:VTIMEZONE"), arr.indexOf("END:VTIMEZONE") + 1).join("\r\n");
                 this.setState({timezone: result});
-             }
+            }
         }.bind(this);
         xhr.open("GET", `https://cors-anywhere.herokuapp.com/http://tzurl.org/zoneinfo-outlook/${timezone}`);
         xhr.send();
@@ -69,7 +70,7 @@ class App extends React.Component {
         //Date checking
         if (startDate > endDate) {
             formError = true;
-            errorMessages.push("The event start date cannot be later than the event end date!")
+            errorMessages.push("The event start date cannot be later than the event end date!");
         }
 
         let currentDateTime = date.getFullYear() + '' +
@@ -83,7 +84,7 @@ class App extends React.Component {
         let RSVP = '';
         let resource = 'RESOURCE:';
 
-        if (this.state.repeat !== '') {
+        if (this.state.repeat !== 'No Repeat') {
             recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
         }
 
@@ -95,13 +96,13 @@ class App extends React.Component {
             priority += 'PRIORITY:' + this.state.priority + '\r\n';
         }
 
-        if(this.state.RSVP === true) {
+        if (this.state.RSVP === true) {
             this.state.arrRSVP.forEach(
                 (value) => RSVP += 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\r\n RSVP=TRUE:MAILTO:' + value + '\r\n'
             )
         }
 
-        if(this.state.resources.length !== 0) {
+        if (this.state.resources.length !== 0) {
             this.state.resources.forEach(
                 (value) => (resource.substring(resource.indexOf('\n')).length + value.length > 28) ? resource += `\r\n ${value},` : resource += `${value},`
             );
@@ -173,9 +174,9 @@ class App extends React.Component {
                 start: "",
                 end: "",
                 eventDescription: "",
-                repeat: "",
-                class: "",
-                priority: "",
+                repeat: "No Repeat",
+                class: "PUBLIC",
+                priority: "9",
                 error: [],
                 RSVP: false,
                 toRSVP: "",
@@ -183,35 +184,42 @@ class App extends React.Component {
                 GEO: "",
                 sender: "",
                 resources: [],
-                resource: ''
-
+                resource: '',
+                emailError: false
             });
         } else {
             console.log("error");
-            this.setState({ error: errorMessages });
+            this.setState({error: errorMessages});
         }
     };
 
     handleChange = (e) => {
-        this.setState({ [e.target.name]: e.target.value });
+        this.setState({[e.target.name]: e.target.value});
     };
 
     handlePlaceChange = (place) => {
-        this.setState({eventLocation: place.formatted_address, GEO: `${place.geometry.location.lat()};${place.geometry.location.lng()}`});
+        this.setState({
+            eventLocation: place.formatted_address,
+            GEO: `${place.geometry.location.lat()};${place.geometry.location.lng()}`
+        });
     }
 
     showRSVP = () => {
-        this.setState({ RSVP: !this.state.RSVP });
+        this.setState({RSVP: !this.state.RSVP});
     }
 
     handleRSVP = () => {
-        if(this.state.arrRSVP.indexOf(this.state.toRSVP) === -1) {
+        //email checking
+        let email = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(.\w{2,3})+$/.test(this.state.toRSVP);
+
+        if (email && this.state.arrRSVP.indexOf(this.state.toRSVP) === -1) {
             let arr = this.state.arrRSVP;
             arr.push(this.state.toRSVP);
-            this.setState({ arrRSVP: arr, toRSVP: '' });
-        }
-        else {
-            this.setState({ toRSVP: '' });
+            this.setState({arrRSVP: arr, toRSVP: '', emailError: false});
+        } else if (email === false) {
+            this.setState({emailError: true});
+        } else {
+            this.setState({toRSVP: '', emailError: false});
         }
 
     }
@@ -232,14 +240,14 @@ class App extends React.Component {
         let index = this.state.arrRSVP.indexOf(value);
         let arr = this.state.arrRSVP.slice();
         arr.splice(index, 1);
-        this.setState({ arrRSVP: arr });
+        this.setState({arrRSVP: arr});
     }
 
     handleResourceRemove = (value) => {
         let index = this.state.resources.indexOf(value);
         let arr = this.state.resources.slice();
         arr.splice(index, 1);
-        this.setState({ resources: arr });
+        this.setState({resources: arr});
     }
 
     initAutocomplete = () => {
@@ -257,12 +265,11 @@ class App extends React.Component {
     }
 
     handleEnter = (event) => {
-        if(event.which === 13) {
+        if (event.which === 13) {
             event.preventDefault();
-            if(event.target.name === 'resource') {
+            if (event.target.name === 'resource') {
                 this.handleResources();
-            }
-            else if(event.target.name === 'toRSVP') {
+            } else if (event.target.name === 'toRSVP') {
                 this.handleRSVP();
             }
         }
@@ -271,22 +278,31 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
-                <Menu>
-                    <Header as="h1">Kalendae</Header>
+                <Menu size="huge" inverted>
+                    <Grid style={{margin: "3px 0px 2px 0px"}}>
+                        <Grid.Row>
+                            <Grid.Column>
+                                <Header as="h1" textAlign="center" style={{color: "white"}}>Kalendae</Header>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                 </Menu>
+
                 <Grid container stretched>
                     <Grid.Column>
                         <Header as="h2" textAlign="center" className='white'>Add an Event!</Header>
                         <Form onSubmit={this.submit} error>
-                            <Form.Input required fluid name='eventName' value={this.state.eventName} label='Event Name'
+                            <Form.Input style={{paddingBottom: "30px"}} required fluid name='eventName'
+                                        value={this.state.eventName} label='Event Name'
                                         placeholder='Ex. New Year Party' onChange={this.handleChange}/>
 
-                            <Form.Group widths='equal'>
-                                <Form.Input id="pac-input" required name='eventLocation' value={this.state.eventLocation}
+                            <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
+                                <Form.Input id="pac-input" required name='eventLocation'
+                                            value={this.state.eventLocation}
                                             label='Location'
                                             placeholder='Ex. 1234 Foo St. Honolulu, HI 96821'
                                             onChange={this.handleChange}
-                                            />
+                                />
                                 <Form.Input required name='start' value={this.state.start} label='Start Date'
                                             type='datetime-local'
                                             onChange={this.handleChange}/>
@@ -295,12 +311,12 @@ class App extends React.Component {
                                             onChange={this.handleChange}/>
                             </Form.Group>
 
-                            <Form.Group widths='equal'>
+                            <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
                                 <Form.Select name='repeat' value={this.state.repeat} label='Repeat'
                                              options={this.state.repeatOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({ repeat: value });
+                                                     this.setState({repeat: value});
                                                  }
                                              }
                                 />
@@ -308,7 +324,7 @@ class App extends React.Component {
                                              options={this.state.classOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({ class: value });
+                                                     this.setState({class: value});
                                                  }
                                              }
                                 />
@@ -316,65 +332,102 @@ class App extends React.Component {
                                              options={this.state.priorityOptions}
                                              onChange={
                                                  (e, {value}) => {
-                                                     this.setState({ priority: value });
+                                                     this.setState({priority: value});
                                                  }
                                              }
                                 />
                             </Form.Group>
 
-                            <Form.Group>
+                            <Form.Group style={{paddingBottom: "30px"}}>
                                 <Form.Input
-                                            action={
-                                    <Button type="button" onClick={this.handleResources} icon>
-                                        <Icon name="add"/>
-                                    </Button>}
-                                            type='text' value={this.state.resource} name='resource' label='Resources'
-                                            placeholder='Ex. Projector, Camera, etc.' onChange={this.handleChange} onKeyDown={this.handleEnter}/>
-                                <Container fluid>
-                                    <Header as='h5'>Resource List</Header>
-                                    <List ordered horizontal>
-                                        {this.state.resources.map((value) =>
-                                            <List.Item key={value}>
-                                                {value}
-                                                <Button style={{backgroundColor: 'transparent'}} type='button' size='tiny'
-                                                        value={value} onClick={(e) => this.handleResourceRemove(e.target.value)} icon circular>
-                                                    <Icon color='red' name='close'/>
-                                                </Button>
-                                            </List.Item>)}
-                                    </List>
-                                </Container>
+                                    action={
+                                        <Button type="button" onClick={this.handleResources} icon>
+                                            <Icon name="add"/>
+                                        </Button>}
+                                    type='text' value={this.state.resource} name='resource' label='Resources'
+                                    placeholder='Ex. Projector, Camera, etc.' onChange={this.handleChange}
+                                    onKeyDown={this.handleEnter}/>
+                                <Grid container>
+                                    <Grid.Row centered verticalAlign="middle" style={{padding: "0 0 0 0"}}>
+                                        <Grid.Column>
+                                            <Header as='h5' textAlign="center" style={{height: "15px"}}>Resource
+                                                List</Header>
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                    <Grid.Row id="resource" stretched>
+                                        <List ordered horizontal>
+                                            {this.state.resources.map((value) =>
+                                                <List.Item key={value}>
+                                                    {value}
+                                                    <Button style={{backgroundColor: 'transparent'}} type='button'
+                                                            size='tiny'
+                                                            value={value}
+                                                            onClick={(e) => this.handleResourceRemove(e.target.value)}
+                                                            icon
+                                                            circular>
+                                                        <Icon color='red' name='close'/>
+                                                    </Button>
+                                                </List.Item>)}
+                                        </List>
+                                    </Grid.Row>
+                                </Grid>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>
                             </Form.Group>
-                            <Form.Group>
-                                {this.state.RSVP === true ?
-                                    <Form.Input action={
+                            <Form.Group style={{paddingBottom: "40px"}}>
+                                {this.state.RSVP === true && this.state.emailError === false ?
+                                    <Form.Input id="toRSVP" action={
                                         <Button type="button" onClick={this.handleRSVP} icon>
                                             <Icon name="add"/>
                                         </Button>}
-                                                type='email' value={this.state.toRSVP} multiple name='toRSVP' label='RSVP To'
-                                                placeholder='Ex. attendee@email.com' onChange={this.handleChange} onKeyDown={this.handleEnter}/> : ""}
+                                                type='email' value={this.state.toRSVP} multiple name='toRSVP'
+                                                label='RSVP To'
+                                                placeholder='Ex. attendee@email.com' onChange={this.handleChange}
+                                                onKeyDown={this.handleEnter}/> :
+                                    (this.state.emailError && this.state.RSVP) ?
+                                        <Form.Input id="toRSVP"
+                                                    error={{content: 'Please enter a valid email', pointing: 'below'}}
+                                                    action={
+                                                        <Button type="button" onClick={this.handleRSVP} icon>
+                                                            <Icon name="add"/>
+                                                        </Button>}
+                                                    type='email' value={this.state.toRSVP} multiple name='toRSVP'
+                                                    label='RSVP To'
+                                                    placeholder='Ex. attendee@email.com' onChange={this.handleChange}
+                                                    onKeyDown={this.handleEnter}/> : ""}
+
                                 {this.state.RSVP === true ?
-                                    <Form.Input required type='email' value={this.state.sender} name='sender' label='Organizer Email'
-                                                                        placeholder='Ex. organizer@email.com' onChange={this.handleChange}/> : ""}
+                                    <Form.Input required type='email' value={this.state.sender} name='sender'
+                                                label='Organizer Email'
+                                                placeholder='Ex. organizer@email.com'
+                                                onChange={this.handleChange}/> : ""}
                                 {this.state.RSVP === true ?
                                     (
-
-                                        <Container fluid>
-                                            <Header as='h5'>Attendee List</Header>
-                                            <List ordered horizontal>
-                                            {this.state.arrRSVP.map((value) =>
-                                                <List.Item key={value}>
-                                                    {value}
-                                                    <Button style={{backgroundColor: 'transparent'}} type='button' size='tiny'
-                                                            value={value} onClick={(e) => this.handleRemove(e.target.value)} icon circular>
-                                                        <Icon color='red' name='close'/>
-                                                    </Button>
-                                                </List.Item>)}
-                                            </List>
-                                        </Container>
-                                    ): ""}
+                                        <Grid container>
+                                            <Grid.Row centered verticalAlign="middle" style={{padding: "0 0 0 0"}}>
+                                                <Grid.Column>
+                                                    <Header as='h5' textAlign="center" style={{height: "15px"}}>Attendee
+                                                        List</Header>
+                                                </Grid.Column>
+                                            </Grid.Row>
+                                            <Grid.Row id='attendee' stretched>
+                                                <List ordered horizontal>
+                                                    {this.state.arrRSVP.map((value) =>
+                                                        <List.Item key={value}>
+                                                            {value}
+                                                            <Button style={{backgroundColor: 'transparent'}}
+                                                                    type='button' size='tiny'
+                                                                    value={value}
+                                                                    onClick={(e) => this.handleRemove(e.target.value)}
+                                                                    icon circular>
+                                                                <Icon color='red' name='close'/>
+                                                            </Button>
+                                                        </List.Item>)}
+                                                </List>
+                                            </Grid.Row>
+                                        </Grid>
+                                    ) : ""}
                             </Form.Group>
 
                             <Form.Input name='eventDescription' value={this.state.eventDescription} control={TextArea}

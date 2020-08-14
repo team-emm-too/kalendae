@@ -294,13 +294,13 @@ class App extends React.Component {
                     <Grid.Column>
                         <Header as="h2" textAlign="center" className='white'>Add an Event!</Header>
                         <Segment>
-                            <Form onSubmit={this.submit} error>
+                            <Form style={{padding: "5px 30px 10px 30px"}} onSubmit={this.submit} error>
                                 <Form.Input style={{paddingBottom: "30px"}} required fluid name='eventName'
                                             value={this.state.eventName} label='Event Name'
                                             placeholder='Ex. New Year Party' onChange={this.handleChange}/>
 
                                 <Divider style={{backgroundColor: "paleturquoise"}} />
-                                
+
                                 <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
                                     <Form.Input id="pac-input" required name='eventLocation'
                                                 value={this.state.eventLocation}

@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/kalendae/static/css/main.02c5925e.chunk.css",
-    "main.js": "/kalendae/static/js/main.2e9795bf.chunk.js",
-    "main.js.map": "/kalendae/static/js/main.2e9795bf.chunk.js.map",
+    "main.js": "/kalendae/static/js/main.9b2502ed.chunk.js",
+    "main.js.map": "/kalendae/static/js/main.9b2502ed.chunk.js.map",
     "runtime-main.js": "/kalendae/static/js/runtime-main.b0601e38.js",
     "runtime-main.js.map": "/kalendae/static/js/runtime-main.b0601e38.js.map",
     "static/css/2.0a1f0ece.chunk.css": "/kalendae/static/css/2.0a1f0ece.chunk.css",
     "static/js/2.74841dc5.chunk.js": "/kalendae/static/js/2.74841dc5.chunk.js",
     "static/js/2.74841dc5.chunk.js.map": "/kalendae/static/js/2.74841dc5.chunk.js.map",
     "index.html": "/kalendae/index.html",
-    "precache-manifest.d40214c911966e32df5693ee62f89e6e.js": "/kalendae/precache-manifest.d40214c911966e32df5693ee62f89e6e.js",
+    "precache-manifest.878fae90b50ebf23b1f370bdb427d37c.js": "/kalendae/precache-manifest.878fae90b50ebf23b1f370bdb427d37c.js",
     "service-worker.js": "/kalendae/service-worker.js",
     "static/css/2.0a1f0ece.chunk.css.map": "/kalendae/static/css/2.0a1f0ece.chunk.css.map",
     "static/css/main.02c5925e.chunk.css.map": "/kalendae/static/css/main.02c5925e.chunk.css.map",
@@ -21,6 +21,6 @@
     "static/css/2.0a1f0ece.chunk.css",
     "static/js/2.74841dc5.chunk.js",
     "static/css/main.02c5925e.chunk.css",
-    "static/js/main.2e9795bf.chunk.js"
+    "static/js/main.9b2502ed.chunk.js"
   ]
 }

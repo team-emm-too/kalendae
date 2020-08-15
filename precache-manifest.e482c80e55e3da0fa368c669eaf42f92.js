@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "566d9d5e498ec65fa7eeccc1e352ce48",
+    "revision": "50687620b9fb6064c5bd07742f6f3d98",
     "url": "/kalendae/index.html"
   },
   {
@@ -8,8 +8,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/kalendae/static/css/2.0a1f0ece.chunk.css"
   },
   {
-    "revision": "e35b0cea574ead61650d",
-    "url": "/kalendae/static/css/main.02c5925e.chunk.css"
+    "revision": "ea1cff40cc6503382585",
+    "url": "/kalendae/static/css/main.979bccbe.chunk.css"
   },
   {
     "revision": "1bfd4c2c7c0e44ad035e",
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/kalendae/static/js/2.74841dc5.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "e35b0cea574ead61650d",
-    "url": "/kalendae/static/js/main.9b2502ed.chunk.js"
+    "revision": "ea1cff40cc6503382585",
+    "url": "/kalendae/static/js/main.9d370239.chunk.js"
   },
   {
     "revision": "3cb79502bc96b45becca",

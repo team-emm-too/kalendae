@@ -20,8 +20,11 @@ class App extends React.Component {
         arrRSVP: [],
         GEO: "",
         sender: "",
+        dateException: "",
+        arrDate: [],
         resources: [],
         resource: '',
+        arrMonths: [],
         emailError: false,
         repeatOptions: [
             {key: 'n', value: "No Repeat", text: 'No Repeat'},
@@ -40,6 +43,20 @@ class App extends React.Component {
             {key: 'm', value: '5', text: 'Medium'},
             {key: 'h', value: '1', text: 'High'},
         ],
+        months: [
+            {key: "JAN", value: '1', text: "January"},
+            {key: "FEB", value: '2', text: "February"},
+            {key: "MAR", value: '3', text: "March"},
+            {key: "APR", value: '4', text: "April"},
+            {key: "MAY", value: '5', text: "May"},
+            {key: "JUN", value: '6', text: "June"},
+            {key: "JUL", value: '7', text: "July"},
+            {key: "AUG", value: '8', text: "August"},
+            {key: "SEP", value: '9', text: "September"},
+            {key: "OCT", value: '10', text: "October"},
+            {key: "NOV", value: '11', text: "November"},
+            {key: "DEC", value: '12', text: "December"},
+        ]
     };
 
     componentDidMount() {
@@ -83,9 +100,14 @@ class App extends React.Component {
         let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         let RSVP = '';
         let resource = 'RESOURCE:';
+        let dateExceptions = "";
 
         if (this.state.repeat !== 'No Repeat') {
             recurrence += 'RRULE:FREQ=' + this.state.repeat + '\r\n';
+        }
+
+        if (this.state.arrMonths.length !== 0) {
+            recurrence += 'EXRULE:FREQ=YEARLY;BYMONTH=' + this.state.arrMonths.join(",") + '\r\n';
         }
 
         if (this.state.class !== '') {
@@ -108,6 +130,10 @@ class App extends React.Component {
             );
             resource = resource.substring(0, resource.length - 1);
             resource += '\r\n';
+        }
+
+        if (this.state.arrDate.length !== 0) {
+            dateExceptions = 'EXDATE:' + this.state.arrDate.join(",").split("-").join("") + '\r\n';
         }
 
 
@@ -142,6 +168,8 @@ class App extends React.Component {
             'GEO:' + this.state.GEO + '\r\n' +
             //Recurrence
             recurrence +
+            //Date Exceptions
+            dateExceptions +
             //Classification
             classification +
             //Priority
@@ -185,7 +213,10 @@ class App extends React.Component {
                 sender: "",
                 resources: [],
                 resource: '',
-                emailError: false
+                emailError: false,
+                dateException: "",
+                arrDate: [],
+                arrMonths: [],
             });
         } else {
             console.log("error");
@@ -225,7 +256,7 @@ class App extends React.Component {
     }
 
     handleResources = () => {
-        if (this.state.resources.indexOf(this.state.resource) === -1) {
+        if (this.state.resources.indexOf(this.state.resource) === -1 && this.state.resource !== "") {
             let arr = this.state.resources;
             arr.push(this.state.resource);
             this.setState({resources: arr, resource: ''});
@@ -234,6 +265,16 @@ class App extends React.Component {
         }
 
         console.log(this.state.resources);
+    }
+
+    handleDateExceptions = () => {
+        if (this.state.arrDate.indexOf(this.state.dateException) === -1 && this.state.dateException !== "") {
+            let arr = this.state.arrDate;
+            arr.push(this.state.dateException);
+            this.setState({arrDate: arr, dateException: ''});
+        } else {
+            this.setState({dateException: ''});
+        }
     }
 
     handleRemove = (value) => {
@@ -249,7 +290,13 @@ class App extends React.Component {
         let arr = this.state.resources.slice();
         arr.splice(index, 1);
         this.setState({resources: arr});
-        console.log(index, arr, value);
+    }
+
+    handleDateRemove = (value) => {
+        let index = this.state.arrDate.indexOf(value);
+        let arr = this.state.arrDate.slice();
+        arr.splice(index, 1);
+        this.setState({arrDate: arr});
     }
 
     initAutocomplete = () => {
@@ -284,7 +331,8 @@ class App extends React.Component {
                     <Grid style={{margin: "3px 0px 2px 0px"}}>
                         <Grid.Row>
                             <Grid.Column>
-                                <Header as="h1" textAlign="center" style={{color: "white"}}><Icon name="calendar alternate" color="blue"/> Kalendae</Header>
+                                <Header as="h1" textAlign="center" style={{color: "white"}}><Icon
+                                    name="calendar alternate" color="blue"/> Kalendae</Header>
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -299,7 +347,7 @@ class App extends React.Component {
                                             value={this.state.eventName} label='Event Name'
                                             placeholder='Ex. New Year Party' onChange={this.handleChange}/>
 
-                                <Divider style={{backgroundColor: "paleturquoise"}} />
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
 
                                 <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
                                     <Form.Input id="pac-input" required name='eventLocation'
@@ -316,9 +364,9 @@ class App extends React.Component {
                                                 onChange={this.handleChange}/>
                                 </Form.Group>
 
-                                <Divider style={{backgroundColor: "paleturquoise"}} />
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
 
-                                <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
+                                <Form.Group style={{paddingBottom: "30px"}}>
                                     <Form.Select name='repeat' value={this.state.repeat} label='Repeat'
                                                  options={this.state.repeatOptions}
                                                  onChange={
@@ -327,6 +375,60 @@ class App extends React.Component {
                                                      }
                                                  }
                                     />
+
+                                    {this.state.repeat !== 'No Repeat' ?
+                                        <Form.Select multiple name='monthException'
+                                                     label='Month Exception'
+                                                     options={this.state.months}
+                                                     onChange={
+                                                         (e, {value}) => {
+
+                                                             this.setState({arrMonths: value});
+                                                         }
+                                                     }
+                                        /> : ""}
+
+                                </Form.Group>
+                                {this.state.repeat !== 'No Repeat' ?
+                                <Form.Group style={{paddingBottom: "30px"}}>
+                                    <Form.Input
+                                        action={
+                                            <Button type="button" onClick={this.handleDateExceptions} icon>
+                                                <Icon color="green" name="add"/>
+                                            </Button>}
+                                        type='date' value={this.state.dateException} name='dateException'
+                                        label='Date Exceptions'
+                                        onChange={this.handleChange}
+                                        onKeyDown={this.handleEnter}/>
+                                    <Grid container>
+                                        <Grid.Row centered verticalAlign="middle" style={{padding: "0 0 0 0"}}>
+                                            <Grid.Column>
+                                                <Header as='h5' textAlign="center" style={{height: "15px"}}>Date
+                                                    Exceptions
+                                                    List</Header>
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                        <Grid.Row id="date-exception" stretched>
+                                            <List ordered horizontal>
+                                                {this.state.arrDate.map((value) =>
+                                                    <List.Item key={value}>
+                                                        {value}
+                                                        <Button style={{backgroundColor: 'transparent'}} type='button'
+                                                                size='tiny'
+                                                                value={value}
+                                                                onClick={() => this.handleDateRemove(value)}
+                                                                icon
+                                                                circular>
+                                                            <Icon color='red' name='close'/>
+                                                        </Button>
+                                                    </List.Item>)}
+                                            </List>
+                                        </Grid.Row>
+                                    </Grid>
+                                </Form.Group> : "" }
+
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
+                                <Form.Group widths='equal' style={{paddingBottom: "30px"}}>
                                     <Form.Select name='classification' value={this.state.class} label='Classification'
                                                  options={this.state.classOptions}
                                                  onChange={
@@ -345,7 +447,7 @@ class App extends React.Component {
                                     />
                                 </Form.Group>
 
-                                <Divider style={{backgroundColor: "paleturquoise"}} />
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
 
                                 <Form.Group style={{paddingBottom: "30px"}}>
                                     <Form.Input
@@ -382,7 +484,7 @@ class App extends React.Component {
                                     </Grid>
                                 </Form.Group>
 
-                                <Divider style={{backgroundColor: "paleturquoise"}} />
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
 
                                 <Form.Group>
                                     <Form.Radio name='RSVP' label='RSVP' toggle onChange={this.showRSVP}/>
@@ -445,12 +547,13 @@ class App extends React.Component {
                                             </Grid>
                                         ) : ""}
                                 </Form.Group>
-                                <Divider style={{backgroundColor: "paleturquoise"}} />
+                                <Divider style={{backgroundColor: "paleturquoise"}}/>
                                 <Form.Input name='eventDescription' value={this.state.eventDescription}
                                             control={TextArea}
                                             label='Event Description' placeholder='Ex. New Year Party'
                                             onChange={this.handleChange}/>
-                                <Form.Button color="green" icon labelPosition='right'>Submit/Download<Icon name="download" /></Form.Button>
+                                <Form.Button color="green" icon labelPosition='right'>Submit/Download<Icon
+                                    name="download"/></Form.Button>
                                 {this.state.error.length !== 0 ? <Message
                                     error
                                     header='Action Forbidden'

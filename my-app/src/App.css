@@ -47,6 +47,11 @@
   border-radius: 4px;
 }
 
+#date-exception {
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  border-radius: 4px;
+}
+
 .list-header {
   margin-bottom: 4px;
 }
